@@ -1,0 +1,104 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: x509-certificate-exporter
+  namespace: monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: x509-certificate-exporter
+rules:
+  - apiGroups: [""]
+    resources:
+      - secrets
+      - namespaces
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: x509-certificate-exporter
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: x509-certificate-exporter
+subjects:
+  - kind: ServiceAccount
+    name: x509-certificate-exporter
+    namespace: monitoring
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: x509-certificate-exporter-node
+  namespace: monitoring
+spec:
+  selector:
+    matchLabels:
+      app: x509-certificate-exporter-node
+  template:
+    metadata:
+      labels:
+        app: x509-certificate-exporter-node
+    spec:
+      serviceAccountName: x509-certificate-exporter
+      tolerations:
+        - key: "node-role.kubernetes.io/control-plane"
+          operator: "Exists"
+          effect: "NoSchedule"
+        - key: "node-role.kubernetes.io/master"
+          operator: "Exists"
+          effect: "NoSchedule"        
+      hostPID: false
+      hostNetwork: false
+      containers:
+        - name: exporter
+          image: enix/x509-certificate-exporter:latest
+          args:
+            - --watch-dir=/host/etc/kubernetes/pki
+            - --watch-dir=/host/var/lib/kubelet/pki
+            - --expose-relative-metrics=true
+          ports:
+            - name: metrics
+              containerPort: 9793
+          volumeMounts:
+            - name: host-k8s-pki
+              mountPath: /host/etc/kubernetes/pki
+              readOnly: true
+            - name: host-kubelet-pki
+              mountPath: /host/var/lib/kubelet/pki
+              readOnly: true
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+      volumes:
+        - name: host-k8s-pki
+          hostPath:
+            path: /etc/kubernetes/pki
+            type: DirectoryOrCreate
+        - name: host-kubelet-pki
+          hostPath:
+            path: /var/lib/kubelet/pki
+            type: DirectoryOrCreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: x509-certificate-exporter-node
+  namespace: monitoring
+  labels:
+    app: x509-certificate-exporter-node
+spec:
+  selector:
+    app: x509-certificate-exporter-node
+  ports:
+    - name: metrics
+      port: 9793
+      targetPort: 9793
+      protocol: TCP
