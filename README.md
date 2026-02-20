@@ -19,7 +19,7 @@ k8s-cert-monitoring
     - targetLabel: cluster_name
       replacement: 'kube-cluster-01'
   - url: https://mimir-gateway.metrics.olsxops.com/api/v1/push
-    name: for-cert-name
+    name: for-mon-cert-name
     basicAuth:
       username:
         name: secret-name
@@ -28,12 +28,12 @@ k8s-cert-monitoring
         name: secret-name
         key: password
     headers:
-      "X-Scope-OrgID": for-cert-name
+      "X-Scope-OrgID": for-mon-cert-name
     writeRelabelConfigs:
     - sourceLabels: [__name__]
       regex: "x509_.*"
       action: keep      
     - targetLabel: cluster
-      replacement: kubly-dev 
+      replacement: kube-cluster-01
 
 ```
