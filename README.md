@@ -5,7 +5,7 @@ k8s-cert-monitoring
 ```yaml
   remoteWrite:
   - url: https://mimir-gateway.metrics.olsxops.com/api/v1/push
-    name: secret-name
+    name: kube-cluster-01
     basicAuth:
       username:
         name: secret-name
