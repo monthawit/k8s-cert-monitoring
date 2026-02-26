@@ -1,6 +1,15 @@
 # k8s-cert-monitoring
 k8s-cert-monitoring
 
+## Create secret for authen
+
+```bash
+kubectl create secret generic basic-auth \
+  --from-literal=username=admin \
+  --from-literal=password=admin123 \
+  -n your-namespace
+```
+
 ## how to confi prometheus-prometheus.yaml 
 ```yaml
   remoteWrite:
