@@ -23,6 +23,7 @@ ubectl create secret generic basic-auth \
 ## how to confi prometheus-prometheus.yaml 
 ```yaml
   remoteWrite:
+  # for cluster monitoring, send all data to cluster tenentID
   - url: https://mimir-gateway.metrics.olsxops.com/api/v1/push
     name: kube-cluster-01
     basicAuth:
@@ -41,6 +42,7 @@ ubectl create secret generic basic-auth \
       replacement: 'poc'
     - targetLabel: customerName
       replacement: 'milky'
+  # for k8s cert monitoring, send only x509 metrics to mon-cert tenent.
   - url: https://mimir-gateway.metrics.olsxops.com/api/v1/push
     name: for-mon-cert-name
     basicAuth:
