@@ -37,6 +37,10 @@ ubectl create secret generic basic-auth \
     writeRelabelConfigs:            
     - targetLabel: cluster_name
       replacement: 'kube-cluster-01'
+    - targetLabel: serviceLevel
+      replacement: 'poc'
+    - targetLabel: customerName
+      replacement: 'milky'
   - url: https://mimir-gateway.metrics.olsxops.com/api/v1/push
     name: for-mon-cert-name
     basicAuth:
@@ -54,5 +58,8 @@ ubectl create secret generic basic-auth \
       action: keep      
     - targetLabel: cluster
       replacement: kube-cluster-01
-
+    - targetLabel: serviceLevel
+      replacement: 'poc'
+    - targetLabel: customerName
+      replacement: 'milky'
 ```
