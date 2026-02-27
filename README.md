@@ -3,10 +3,20 @@ k8s-cert-monitoring
 
 ## Create secret for authen
 
+### Option 1 : username & pass ( use this ! )
 ```bash
 kubectl create secret generic basic-auth \
   --from-literal=username=admin \
   --from-literal=password=admin123 \
+  -n your-namespace
+```
+
+### option 2 : htpasswd
+```bash
+htpasswd -c auth admin
+
+ubectl create secret generic basic-auth \
+  --from-file=auth \
   -n your-namespace
 ```
 
